@@ -1,7 +1,7 @@
 import numpy as np
 import scipy.stats as stats
 import random
-from llm import generate
+from .llm import generate
 
 # --- Multi-Armed Bandit Environment ---
 class MAB:

@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llm_explorer"
+version = "0.0.1"
+authors = [
+  { name="Your Name", email="your.email@example.com" }, # TODO: Replace with actual author info
+]
+description = "A package to investigate how LLMs explore in RL settings."
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License", # TODO: Confirm or change license
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "numpy",
+    "scipy",
+    "google-generativeai",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/yourusername/llm_explorer" # TODO: Replace with actual URL
+"Bug Tracker" = "https://github.com/yourusername/llm_explorer/issues" # TODO: Replace with actual URL
+
+[tool.setuptools.packages.find]
+where = ["src"]
