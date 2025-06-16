@@ -2,6 +2,9 @@ import numpy as np
 import scipy.stats as stats
 import random
 from llm import generate
+import logging
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.DEBUG)
 
 # --- Multi-Armed Bandit Environment ---
 class MAB:
@@ -26,6 +29,7 @@ class MAB:
             raise ValueError("Invalid arm index")
         return 1 if random.random() < self.arm_probabilities[arm_index] else 0
 
+    @property
     def description(self):
         return f"""
             {self.n_arms}-armed bandit game. 
@@ -68,7 +72,7 @@ class ThompsonSampler:
 
 # --- LLM Agent ---
 class LLMAgent:
-    def __init__(self, mab, generation_instructions, temperature=0.7):
+    def __init__(self, mab, model_name, generation_instructions, temperature=0.7):
         """
         Initialize the LLM agent.
         Args:
@@ -79,6 +83,7 @@ class LLMAgent:
         self.temperature = temperature
         self.generation_instructions = generation_instructions
         self.history = [] # List of (arm_index, reward) tuples
+        self.model_name = model_name
 
     def select_arm(self):
         """
@@ -90,14 +95,16 @@ class LLMAgent:
                   Returns -1 if LLM output is invalid.
         """
         prompt = format_prompt(self.mab.description, self.history, self.generation_instructions)
-        chosen_arm_text = generate(prompt, self.temperature)
+        logger.info(prompt)
+        chosen_arm_text = generate(self.model_name, prompt, self.temperature)
+        logger.info(chosen_arm_text)
         chosen_arm = int(chosen_arm_text.strip())  # do we need more error checking here?
 
-        if 0 <= chosen_arm < self.n_arms:
+        if 0 <= chosen_arm < self.mab.n_arms:
             return chosen_arm
         else:
             print(f"LLM Warning: Invalid arm choice '{chosen_arm_text}'. Defaulting to random.")
-            return random.choice(range(self.n_arms)) # Fallback
+            return random.choice(range(self.mab.n_arms)) # Fallback
 
     def update(self, arm_index, reward):
         self.history.append((arm_index, reward))
@@ -118,10 +125,10 @@ def format_history(history):
     prompt = "Here is the history of your previous plays (arm chosen, reward received):\n"
 
     if len(history) == 0:
-        prompt += "No plays yet.\n"
+        prompt += "No history yet.\n"
     else:
         for i, (arm, reward) in enumerate(history):
             prompt += f"Play {i}: Chose Arm {arm}, Received Reward {reward}\n"
 
-    return history
+    return prompt
 

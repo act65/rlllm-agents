@@ -3,9 +3,16 @@ import os
 from google import genai
 from google.genai import types
 
+from dotenv import load_dotenv
+
+load_dotenv()
+GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
+
+
 def generate(model_name, prompt, temperature):
     client = genai.Client(
-        api_key=os.environ.get("GEMINI_API_KEY"),
+        # api_key=os.environ.get("GEMINI_API_KEY"),
+        api_key=GEMINI_API_KEY,
     )
 
     contents = [
@@ -27,8 +34,10 @@ def generate(model_name, prompt, temperature):
         contents=contents,
         config=generate_content_config,
     ):
-        output += chunk.text
+        if chunk.text is not None:
+            output += chunk.text
 
+    print('output', output)
     return output
 
 if __name__ == "__main__":
